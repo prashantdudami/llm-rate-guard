@@ -1,0 +1,85 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "llm-rate-guard"
+version = "0.1.0"
+description = "Cloud-agnostic rate limit mitigation for LLM APIs"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Prashant Deva" }
+]
+keywords = [
+    "llm",
+    "rate-limit",
+    "aws-bedrock",
+    "azure-openai",
+    "vertex-ai",
+    "openai",
+    "anthropic",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+bedrock = ["boto3>=1.28"]
+openai = ["openai>=1.0"]
+azure = ["openai>=1.0"]
+vertex = ["google-cloud-aiplatform>=1.38"]
+anthropic = ["anthropic>=0.18"]
+semantic-cache = ["numpy>=1.24"]
+cost-tracking = ["llm-cost-guard>=0.1.0"]
+all = [
+    "boto3>=1.28",
+    "openai>=1.0",
+    "google-cloud-aiplatform>=1.38",
+    "anthropic>=0.18",
+    "numpy>=1.24",
+    "llm-cost-guard>=0.1.0",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21",
+    "pytest-cov>=4.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/prashantdeva/llm-rate-guard"
+Documentation = "https://github.com/prashantdeva/llm-rate-guard#readme"
+Repository = "https://github.com/prashantdeva/llm-rate-guard"
+
+[tool.hatch.build.targets.wheel]
+packages = ["llm_rate_guard"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
