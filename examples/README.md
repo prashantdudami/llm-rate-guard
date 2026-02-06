@@ -111,6 +111,28 @@ Use Redis or Memcached for multi-node deployments.
 python 12_distributed_cache.py
 ```
 
+### 13. LangChain Integration (`13_langchain_integration.py`)
+Drop-in replacement for ChatBedrock/ChatOpenAI in LangChain chains.
+
+```bash
+pip install llm-rate-guard[langchain]
+python 13_langchain_integration.py
+```
+
+### 14. Standalone Components (`14_standalone_components.py`)
+Use individual decorators without the full client.
+
+```bash
+python 14_standalone_components.py
+```
+
+### 15. Serverless / Lambda (`15_serverless_lambda.py`)
+Rate limiting for AWS Lambda with DynamoDB/Redis backends.
+
+```bash
+python 15_serverless_lambda.py
+```
+
 ## Quick Reference
 
 ### Provider Types

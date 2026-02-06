@@ -28,6 +28,9 @@ LLM Rate Guard provides a unified interface for interacting with multiple LLM pr
 - **Sync wrappers** - Use from synchronous code without async/await
 - **Batch processing** - Process multiple prompts with controlled concurrency
 - **Distributed cache** - Pluggable cache backends (Redis, Memcached)
+- **LangChain integration** - Drop-in replacement for ChatBedrock/ChatOpenAI
+- **Standalone decorators** - `@rate_limited`, `@with_retry`, `@circuit_protected`
+- **Serverless/Lambda support** - DynamoDB and Redis-backed rate limiting for stateless environments
 
 ## Supported Providers
 
@@ -55,7 +58,13 @@ pip install llm-rate-guard[anthropic]    # Anthropic
 # With advanced cost tracking
 pip install llm-rate-guard[cost-tracking]  # llm-cost-guard integration
 
-# All providers + cost tracking
+# With LangChain integration
+pip install llm-rate-guard[langchain]
+
+# With Redis (distributed rate limiting / caching)
+pip install llm-rate-guard[redis]
+
+# All providers + all integrations
 pip install llm-rate-guard[all]
 ```
 
@@ -537,6 +546,70 @@ Available backends:
 - `RedisBackend` - Multi-node, requires `redis` package
 - `MemcachedBackend` - Multi-node, requires `aiomcache` package
 
+## LangChain Integration
+
+Drop-in replacement for ChatBedrock, ChatOpenAI, or any LangChain chat model. No need to rewrite chains or agents:
+
+```python
+# Before: Direct LangChain (no rate limiting)
+from langchain_aws import ChatBedrock
+llm = ChatBedrock(model_id="anthropic.claude-3-sonnet")
+
+# After: One-line swap adds rate limiting, caching, failover
+from llm_rate_guard.integrations.langchain import RateGuardChatModel
+
+llm = RateGuardChatModel(client=rate_guard_client)
+
+# All existing chains, agents, and prompts work unchanged
+chain = LLMChain(llm=llm, prompt=my_prompt)
+result = chain.run("Hello!")
+```
+
+Also provides `RateGuardEmbeddings` for vector operations and `RateGuardCallbackHandler` for monitoring existing chains.
+
+## Standalone Decorators
+
+Use individual components without the full client. Add rate limiting, retry, or circuit breaker to any existing function:
+
+```python
+from llm_rate_guard import rate_limited, with_retry, circuit_protected
+
+@rate_limited(rpm=250, tpm=2_000_000)
+@with_retry(max_retries=3, retryable_exceptions=(ConnectionError,))
+@circuit_protected(failure_threshold=5)
+def call_bedrock(prompt):
+    # Your existing code - unchanged
+    return bedrock_client.invoke_model(...)
+```
+
+Or use the `SyncRateLimiter` directly:
+
+```python
+from llm_rate_guard import SyncRateLimiter
+
+limiter = SyncRateLimiter(rpm=250, tpm=2_000_000)
+limiter.acquire(estimated_tokens=500)  # Blocks until capacity available
+response = bedrock_client.invoke(...)
+```
+
+## Serverless / Lambda Support
+
+Rate limiting that survives cold starts using external state:
+
+```python
+from llm_rate_guard.serverless import DynamoDBRateLimiter, lambda_rate_limited
+
+# State persists in DynamoDB across Lambda invocations
+limiter = DynamoDBRateLimiter(table_name="rate-limits", rpm=250, tpm=2_000_000)
+
+@lambda_rate_limited(limiter)
+def handler(event, context):
+    response = bedrock.invoke_model(...)
+    return {"statusCode": 200, "body": response}
+```
+
+Also available: `RedisRateLimiter` for Redis-backed distributed rate limiting.
+
 ## Multi-Tenancy & Request Context
 
 Track requests by tenant, user, or project for cost attribution:
@@ -726,6 +799,9 @@ See the [examples/](examples/) directory for complete working examples:
 | [10_sync_api.py](examples/10_sync_api.py) | Synchronous API usage |
 | [11_batch_processing.py](examples/11_batch_processing.py) | Batch processing |
 | [12_distributed_cache.py](examples/12_distributed_cache.py) | Redis/Memcached cache |
+| [13_langchain_integration.py](examples/13_langchain_integration.py) | LangChain drop-in |
+| [14_standalone_components.py](examples/14_standalone_components.py) | Decorators & standalone |
+| [15_serverless_lambda.py](examples/15_serverless_lambda.py) | Lambda/serverless |
 
 ## Testing
 

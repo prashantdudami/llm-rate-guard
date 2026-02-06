@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "llm-rate-guard"
-version = "0.1.0"
+version = "0.2.0"
 description = "Cloud-agnostic rate limit mitigation for LLM APIs"
 readme = "README.md"
 license = "MIT"
@@ -45,6 +45,9 @@ vertex = ["google-cloud-aiplatform>=1.38"]
 anthropic = ["anthropic>=0.18"]
 semantic-cache = ["numpy>=1.24"]
 cost-tracking = ["llm-cost-guard>=0.1.0"]
+langchain = ["langchain-core>=0.1.0"]
+redis = ["redis>=4.5"]
+serverless = ["boto3>=1.28"]
 all = [
     "boto3>=1.28",
     "openai>=1.0",
@@ -52,6 +55,8 @@ all = [
     "anthropic>=0.18",
     "numpy>=1.24",
     "llm-cost-guard>=0.1.0",
+    "langchain-core>=0.1.0",
+    "redis>=4.5",
 ]
 dev = [
     "pytest>=7.0",

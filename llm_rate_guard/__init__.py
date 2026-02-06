@@ -44,7 +44,15 @@ from llm_rate_guard.cache_backends import (
     create_backend,
 )
 
-__version__ = "0.1.0"
+from llm_rate_guard.standalone import (
+    SyncRateLimiter,
+    SyncCircuitBreaker,
+    rate_limited,
+    with_retry,
+    circuit_protected,
+)
+
+__version__ = "0.2.0"
 
 __all__ = [
     # Main client
@@ -96,4 +104,10 @@ __all__ = [
     "StreamChunk",
     "CompletionResponse",
     "EmbeddingResponse",
+    # Standalone components
+    "SyncRateLimiter",
+    "SyncCircuitBreaker",
+    "rate_limited",
+    "with_retry",
+    "circuit_protected",
 ]
